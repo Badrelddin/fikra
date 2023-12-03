@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const axios = require("axios");
 const handler = async function (event) {
   if (event.body === null) {
     return {
@@ -9,12 +9,7 @@ const handler = async function (event) {
   const requestBody = JSON.parse(event.body);
   // automatically generated snippet from the email preview
   // sends a request to an email handler for a subscribed email
-  await fetch(`${process.env.URL}/.netlify/functions/emails/subscribed`, {
-    headers: {
-      "netlify-emails-secret": process.env.NETLIFY_EMAILS_SECRET,
-    },
-    method: "POST",
-    body: JSON.stringify({
+  await axios.post(`${process.env.URL}/.netlify/functions/emails/subscribed`, {
       from: requestBody.inviteeEmail,
       to: requestBody.subscriberEmail,
       subject: "You've been subscribed",
@@ -22,8 +17,10 @@ const handler = async function (event) {
         name: requestBody.subscriberName,
         email: requestBody.subscriberEmail,
       },
-    }),
-  });
+    },
+    {headers: {
+      "netlify-emails-secret": process.env.NETLIFY_EMAILS_SECRET,
+    }});
   return {
     statusCode: 200,
     body: JSON.stringify("Subscribe email sent!"),
