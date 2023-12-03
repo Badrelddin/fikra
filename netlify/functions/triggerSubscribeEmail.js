@@ -1,39 +1,32 @@
 const fetch = require("node-fetch");
-
-exports.handler = async function(event) {
+const handler = async function (event) {
   if (event.body === null) {
     return {
       statusCode: 400,
       body: JSON.stringify("Payload required"),
     };
   }
-
-  const {
-    subscriberName,
-    subscriberEmail,
-    inviteeEmail
-  } = JSON.parse(event.body);
-
-  //automatically generated snippet from the email preview
-  //sends a request to an email handler for a subscribed email
+  const requestBody = JSON.parse(event.body);
+  // automatically generated snippet from the email preview
+  // sends a request to an email handler for a subscribed email
   await fetch(`${process.env.URL}/.netlify/functions/emails/subscribed`, {
     headers: {
       "netlify-emails-secret": process.env.NETLIFY_EMAILS_SECRET,
     },
     method: "POST",
     body: JSON.stringify({
-      from: inviteeEmail,
-      to: subscriberEmail,
+      from: requestBody.inviteeEmail,
+      to: requestBody.subscriberEmail,
       subject: "You've been subscribed",
       parameters: {
-        name: subscriberName,
-        email: subscriberEmail,
+        name: requestBody.subscriberName,
+        email: requestBody.subscriberEmail,
       },
     }),
   });
-
   return {
     statusCode: 200,
     body: JSON.stringify("Subscribe email sent!"),
   };
 };
+module.exports = { handler };
